@@ -95,9 +95,45 @@ class GamePanel extends JPanel implements KeyListener{
                 if (s.getClass() == Bullet.class) s.updateY(bulletSpeed*-1);
             }
         });
-
+        Timer scoreTimer = new Timer(30, e -> {
+            ArrayList<Sprite> toRemove = new ArrayList<>();
+            for (Sprite s : Sprites) {
+                if (s instanceof Bullet) {
+                    for (Sprite other : Sprites) {
+                        if (other instanceof Alien) {
+                            if (Math.abs(s.getX() - other.getX()) < 30 && Math.abs(s.getY() - other.getY()) < 30) {
+                                toRemove.add(s);
+                                toRemove.add(other);
+                                score += 10;
+                            }
+                        }
+                    }
+                }
+            }
+            repaint();
+        });
+        Timer hpTimer = new Timer(30, e -> {
+            ArrayList<Sprite> toRemove = new ArrayList<>();
+            for (Sprite s : Sprites) {
+                if (s instanceof Alien) {
+                    if (Math.abs(s.getX() - x) < 30 && Math.abs(s.getY() - y) < 30) {
+                        hp -= 20;
+                        toRemove.add(s);
+                    }
+                }
+            }
+            Sprites.removeAll(toRemove);
+            if (hp == 0) {
+                ((Timer)e.getSource()).stop();
+                JOptionPane.showMessageDialog(null, "GAME OVER!\nFinal Score: " + score);
+                System.exit(0);
+            }
+            repaint();
+        });
         timer.start();
         timer2.start();
+        scoreTimer.start();
+        hpTimer.start();
     }
 
     private void changeCoordinate(String XorY, double amount){
